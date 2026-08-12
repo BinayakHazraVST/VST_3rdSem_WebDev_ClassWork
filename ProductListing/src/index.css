@@ -1,0 +1,44 @@
+*{
+   margin: 0;
+   padding: 0;
+   box-sizing: border-box;
+}
+ 
+html,body,#root{
+   height:100%;
+   width: 100%;
+}
+
+.product{
+  display: flex;
+  flex-direction: column;
+  gap:6px;
+  align-items: center;
+  justify-content: center;
+  padding:10px 20px;
+
+  border:pink solid 3px;
+  border-radius:20px;
+}
+
+img{
+  height: 200px;
+  width:200px;
+  border:black 2px solid;
+  border-radius: 20px;
+}
+
+.Products{
+  display:flex;
+  justify-content: center;
+  align-items: center;
+  padding:10px 20px;
+  flex-wrap: wrap;
+
+  gap:5px;
+}
+
+#root{
+  padding:20px 40px;
+  
+}
