@@ -1,0 +1,75 @@
+*{
+   margin: 0;
+   padding: 0;
+   box-sizing: border-box;
+   font-family: Arial, Helvetica, sans-serif;
+}
+ 
+html,body,#root{
+   height:100%;
+   width: 100%;
+}
+
+.appBody{
+    height:100%;
+    width:100%;
+
+    display:flex;
+    flex-direction: column;
+    justify-content: center;
+    align-items: center;
+}
+
+.authorizeBox{
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    align-items: center;
+    gap:20px;
+
+    min-width: 400px;
+
+    border: 2px solid black;
+    border-radius:10px;
+    padding:20px;
+}
+
+form{
+    display: flex;
+    flex-direction: column;
+    
+    align-self: flex-start;
+    gap:30px;
+    width:100%
+}
+
+label{
+    font-size:20px;
+}
+
+input{
+    font-size: 20px;
+    padding:2px;
+    width: 90%;
+}
+
+button{
+    font-size:20px;
+    padding:10px 30px;
+    cursor: pointer;
+    color: white;
+    background-color: black;
+    border: 2px solid black;
+    border-radius: 10px;
+    align-self: center;
+}
+
+.changeStatus{
+    color:blue;
+    cursor: pointer;
+}
+
+p{
+    color:red;
+    
+}

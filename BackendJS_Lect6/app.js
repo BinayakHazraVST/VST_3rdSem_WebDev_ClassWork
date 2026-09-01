@@ -50,7 +50,6 @@ app.post("/login",async (req,res)=>{
     return res.send("Login successfull !!");
 })
 
-
 app.listen(2000,()=>{
     console.log("server...")
 })
