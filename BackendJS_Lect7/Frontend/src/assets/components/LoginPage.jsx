@@ -2,7 +2,7 @@ import React from 'react'
 import { useState } from 'react'
 import axios from 'axios';
 
-const LoginPage = ({ setIsRegistered }) => {
+const LoginPage = ({ navigate }) => {
     const [userData, setUserData] = useState({
         email: "",
         password: "",
@@ -18,12 +18,13 @@ const LoginPage = ({ setIsRegistered }) => {
     const handleSubmit = async () => {
         let msg = await axios.post("http://localhost:3000/login", userData);
         setVisible(msg.data);
-
+        
         setUserData({
             email: "",
             password: ""
         })
     }
+
     return (
         <div>
             <div className='authorizeBox'>
@@ -46,7 +47,7 @@ const LoginPage = ({ setIsRegistered }) => {
 
                 </form>
                 {visible ? <p>{visible}</p> : <></>}
-                <div className="changeStatus" onClick={() => setIsRegistered(false)}>Not Registered? Sign Up</div>
+                <div className="changeStatus" onClick={() => navigate("/sigup")}>Not Registered? Sign Up</div>
             </div>
 
         </div>

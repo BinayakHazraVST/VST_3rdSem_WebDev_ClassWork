@@ -52,32 +52,25 @@ app.post("/login",async (req,res)=>{
 
     let token=jwt.sign({email: userData.email, role:userData.role},"1234");
     console.log("Token created:\n",token);
-    res.send("Logged In successfully");
+
+   res.send("Logged in Successfully")
 })
 
 let auth=(req, res, next)=>{
     let token=req.headers.authorization;
-    console.log(token)
+    console.log(token,"toeknnnnn")
 
     if(!token){
         return res.send("You are not logged in");
     }
 
-    next();
-}
-
-let admin=(req, res, next)=>{
-    let token=req.headers.authorization;
-
     let decode=jwt.verify(token, "1234");
-    if(decode.role!=="admin"){
-        return res.send("You are not allowed");
-    }
+    req.user=decode;
 
     next();
 }
 
-app.get("/authorize", auth, admin, (req, res)=>{
+app.get("/authorize", auth, (req, res)=>{
     console.log("Hello User!!!");
     res.send("Access granted");
 })

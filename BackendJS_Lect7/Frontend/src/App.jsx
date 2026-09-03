@@ -1,16 +1,17 @@
 import React from 'react'
-import { useState } from 'react'
 import LoginPage from './assets/components/LoginPage'
 import SignupPage from './assets/components/SignupPage'
+import {Route, Routes, useNavigate} from 'react-router-dom';
 
 const App = () => {
-  const [isRegistered, setIsRegistered] = useState(true)
+  const navigate=useNavigate();
+
   return (
     <div className='appBody'>
-      {
-        isRegistered ? <LoginPage setIsRegistered={setIsRegistered} /> :
-          <SignupPage setIsRegistered={setIsRegistered} />
-      }
+      <Routes>
+      <Route path="/" element={<LoginPage navigate={navigate}/>}/>
+      <Route path="/sigup" element={<SignupPage navigate={navigate}/>}/>
+    </Routes>
     </div>
   )
 }

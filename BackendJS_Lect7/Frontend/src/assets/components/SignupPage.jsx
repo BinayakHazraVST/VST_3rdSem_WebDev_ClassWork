@@ -2,7 +2,7 @@ import React from "react";
 import { useState } from "react";
 import axios from "axios";
 
-const SignupPage = ({ setIsRegistered }) => {
+const SignupPage = ({ navigate }) => {
     const [userData, setUserData] = useState({
         name: "",
         email: "",
@@ -87,7 +87,7 @@ const SignupPage = ({ setIsRegistered }) => {
                 </form>
 
                 {visible ? <p>{visible}</p> : <></>}
-                <div className="changeStatus" onClick={() => setIsRegistered(true)}>
+                <div className="changeStatus" onClick={() => navigate("/")}>
                     Already Registered? Log In
                 </div>
             </div>

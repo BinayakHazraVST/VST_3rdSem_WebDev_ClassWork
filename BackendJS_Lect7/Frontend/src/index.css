@@ -28,7 +28,7 @@ html,body,#root{
     gap:20px;
 
     min-width: 400px;
-
+    
     border: 2px solid black;
     border-radius:10px;
     padding:20px;
@@ -40,7 +40,7 @@ form{
     
     align-self: flex-start;
     gap:30px;
-    width:100%
+    width:100%;
 }
 
 label{
