@@ -70,7 +70,7 @@ let admin=(req, res, next)=>{
     let token=req.headers.authorization;
 
     let decode=jwt.verify(token, "1234");
-    if(decode.role!=="user"){
+    if(decode.role!=="admin"){
         return res.send("You are not allowed");
     }
 
