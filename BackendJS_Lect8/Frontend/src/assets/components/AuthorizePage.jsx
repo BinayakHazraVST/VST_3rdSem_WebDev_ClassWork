@@ -5,9 +5,9 @@ import axios from 'axios'
 
 const AuthorizePage = () => {
   const [permitMessage, setPermitMessage] = useState("")
+  let token=localStorage.getItem("token");
 
   let permit=async()=>{
-    let token=localStorage.getItem("token");
     let msg=await axios.get("http://localhost:3000/authorize", {
       headers:{
         authorization: token

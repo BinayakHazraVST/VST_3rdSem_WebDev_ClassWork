@@ -27,6 +27,14 @@ const LoginPage = ({ navigate }) => {
             email: "",
             password: "",
         })
+
+        // setTimeout(()=>{
+        //     localStorage.removeItem("token");
+
+        //     alert("Session expired. Please login again");
+        //     navigate("/");
+        // },3600000);
+
         if(token){
             navigate("/authorize");
         }

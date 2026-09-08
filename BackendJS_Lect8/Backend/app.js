@@ -57,7 +57,7 @@ app.post("/login", async (req,res)=>{
         });
     }
 
-    let token=jwt.sign({email:userData.email, role:userData.role},"1234")
+    let token=jwt.sign({id:userData._id,email:userData.email, role:userData.role},"1234")
     res.status(200).json({
         message:"Logged in Successfully",
         token:token,

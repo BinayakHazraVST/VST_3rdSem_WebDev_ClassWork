@@ -122,7 +122,7 @@ app.put("/me", auth, async (req, res) => {
   res.send("Updation of name done");
 });
 
-app.patch("/users/:id/role", auth, roleCheck("admin"), async (req, res) => {
+app.patch("/users/:id", auth, roleCheck("admin"), async (req, res) => {
   let { id } = req.params;
   let { role } = req.body;
   let targetUser = await findOne({ id });
