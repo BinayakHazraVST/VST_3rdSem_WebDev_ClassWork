@@ -187,8 +187,9 @@ app.get("/users/:id", auth, async (req, res) => {
   }
   res.json(user);
 });
+// we replace the req.user.id
 
-app.put("/role", auth, async (req, res) => {
+app.put("/role", auth, roleCheck("admin"),async (req, res) => {
     let { role } = req.body;
     if(role!=="user" && role!=="admin"){
         return res.send("role is not valid");
@@ -207,6 +208,9 @@ app.put("/role", auth, async (req, res) => {
     res.send("user updated");
 
 });
+//first checking the roleCheck
+//checking the new role is valid or not
+//then updating the user in the database
 
 app.get('/my-orders', auth, async (req,res) => {
     let orders = await Order.findOne({userId:req.user.id});
@@ -215,6 +219,7 @@ app.get('/my-orders', auth, async (req,res) => {
     }
     res.json(orders);
 });
+//finding the write user Id 
 
 app.listen(3000, () => {
   console.log("Server running....");
