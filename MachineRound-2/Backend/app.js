@@ -181,7 +181,7 @@ app.get("/my-orders", auth, async (req, res) => {
 
 //debug
 app.get("/users/:id", auth, async (req, res) => {
-  let user = await User.findById(req.params.id);
+  let user = await User.findById(req.user.id);
   if (!user) {
     return res.send("User does not exist");
   }
