@@ -1,15 +1,16 @@
 let mongoose=require("mongoose");
 
-let userSchema=new mongoose.Schema({
+let UserSchema=new mongoose.Schema({
     name:String,
     email:String,
     password:String,
     role:{
         type:String,
-        enum:["user","admin"],
-        default:"user"
+        enum:['user','admin'],
+        default:'user'
     }
 })
 
-let Users=mongoose.model("user_MachineRound", userSchema);
+let Users=mongoose.model("user_machineRound",UserSchema);
+
 module.exports=Users;

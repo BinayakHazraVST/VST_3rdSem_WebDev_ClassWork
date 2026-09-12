@@ -1,41 +1,55 @@
 let express = require("express");
-const { default: mongoose } = require("mongoose");
-let bcryptjs = require("bcryptjs");
 let app = express();
-let jwt = require("jsonwebtoken");
-let cors = require("cors");
 
-let Users = require("./config/db");
-const { findById } = require("./config/db");
-const { findByIdAndUpdate } = require("./config/db");
-let Orders = require("./config/order");
+let mongoose = require("mongoose");
+let Users = require("./config/UserModel");
+let Orders = require("./config/OrderModel");
+
+let bcryptjs = require("bcryptjs");
+let jwt = require("jsonwebtoken");
+let cors=require("cors");
 
 let connectDb = async () => {
-  await mongoose.connect("mongodb://localhost:27017/vedamDb");
-  console.log("Db connected...");
+  try {
+    await mongoose.connect("mongodb://localhost:27017/vedamDb");
+
+    console.log("Database connected");
+  } catch (error) {
+    console.log("Error in connecting the database", error);
+  }
 };
 
 connectDb();
-
 app.use(express.json());
-app.use(cors());
+app.use(cors())
 
 app.post("/signup", async (req, res) => {
   let { name, email, password, role } = req.body;
   let userData = await Users.findOne({ email });
-
   if (userData) {
-    return res.send("You are already signed up. Please log in");
+    return res
+      .status(200)
+      .json({ message: "You are already registered. Please log in" });
   }
   let updatedPassword = await bcryptjs.hash(password, 8);
-  let newUser = await Users.create({
+
+  let newUsers = new Users({
     name,
     email,
     password: updatedPassword,
     role: role || "user",
   });
 
-  res.send("User signed up successfully");
+  try {
+    await newUsers.save();
+    console.log("New user created");
+  } catch (error) {
+    console.log("Error in creating new user", error);
+  }
+
+  res.status(200).json({
+    message: "You are registered successfully!!",
+  });
 });
 
 app.post("/login", async (req, res) => {
@@ -43,184 +57,206 @@ app.post("/login", async (req, res) => {
   let userData = await Users.findOne({ email });
 
   if (!userData) {
-    return res.send("User not found, Please Sign Up");
+    return res.status(200).json({
+      message: "You are not registered. Please sign up",
+    });
   }
 
   let checkPassword = await bcryptjs.compare(password, userData.password);
-
   if (!checkPassword) {
-    return res.send("Wrong Password");
+    return res.status(200).json({
+      message:"Wrong Password"
+    });
   }
 
   let token = jwt.sign(
-    { id: userData._id, email: userData.email, role: userData.role },
+    {
+      id: userData._id,
+      name: userData.name,
+      email: userData.email,
+      role: userData.role,
+    },
     "1234",
   );
-  console.log("Token created:\n", token);
 
-  res.send("Logged in Successfully");
+  res.status(200).json({
+    message: "You are logged in",
+    token: token,
+  });
 });
 
 let auth = (req, res, next) => {
   let token = req.headers.authorization;
-  console.log(token, "toeknnnnn");
 
   if (!token) {
-    return res.send("You are not logged in");
+    return res.status(200).json({
+      message: "You are not logged in",
+    });
   }
-
   let decode = jwt.verify(token, "1234");
-  req.user = decode;
 
+  req.user = decode;
   next();
 };
 
 let roleCheck = (role) => {
   return (req, res, next) => {
     if (req.user.role !== role) {
-      return res.send("You are not permitted...");
+      return res.status(200).json({
+        message: "You are not permitted",
+      });
     }
 
     next();
   };
 };
 
-app.get("/authorize", auth, (req, res) => {
-  console.log("Hello User!!!");
-  res.send("Access granted");
+let cleanData=(userData)=>{
+  let user={
+    id: userData._id,
+    name: userData.name,
+    email:userData.email,
+    role:userData.role,
+  }
+
+  return user;
+}
+
+app.get("/authorize", auth, roleCheck("admin"), (req, res) => {
+  let name = req.user.name;
+  res.send(`Hello!! ${name}`);
 });
 
 app.get("/me", auth, async (req, res) => {
-  let id = req.user.id;
-  let userData = await Users.findOne({ id });
+  let { id } = req.user;
 
-  let user = {
-    name: userData.name,
-    email: userData.email,
-    role: userData.role,
-  };
+  let userData = await Users.findById(id);
 
-  console.log(user);
+  let showData=cleanData(userData);
+  console.log(showData);
 
-  res.send("get me is working...");
+  res.status(200).json({
+    message: "User data fetched successfully",
+    data: showData,
+  });
 });
 
 app.put("/me", auth, async (req, res) => {
+  let { id } = req.user;
   let { name } = req.body;
-  let userData = await Users.findOne({ email: req.user.email });
-  let id = userData.id;
-
-  let updatedUser = await Users.findByIdAndUpdate(
+  let userData = await Users.findByIdAndUpdate(
     id,
     {
       name: name,
     },
-    { new: true },
+    {
+      new: true,
+    },
   );
 
-  console.log("Updated user:\n", updatedUser);
-  res.send("Updation of name done");
+  let showData = cleanData(userData)
+
+  res.status(200).json({
+    message: "Name updated successfully",
+    data: showData,
+  });
 });
 
 app.patch("/users/:id", auth, roleCheck("admin"), async (req, res) => {
   let { id } = req.params;
   let { role } = req.body;
-  let targetUser = await findOne({ id });
-  if (!targetUser) {
-    return res.send("Target user not found");
+
+  if (role !== "admin" && role !== "user") {
+    return res.status(200).json({
+      message: "Invalid Role. Could not updated",
+    });
   }
 
-  if (role !== "user" && role !== "admin") {
-    return res.send("Updation is not allowed");
+  let userData = await Users.findByIdAndUpdate(
+    id,
+    {
+      role: role,
+    },
+    {
+      new: true,
+    },
+  );
+
+  if (!userData) {
+    return res.status(200).json({
+      message: "User not found",
+    });
   }
 
-  let updatedUser = await findByIdAndUpdate(id, { role: role }, { new: true });
-  req.user.role=role;
+  let showData=cleanData(userData);
 
-  console.log(updatedUser);
-  res.send("User updated successfully");
-});
-
-app.post("/orders", auth, async (req, res) => {
-  let id = req.user.id;
-  let { productName, amount } = req.body;
-
-  let orderDetails = await Orders.findOne({ id });
-
-  if (orderDetails) {
-    return res.send("Order has already being added...");
-  }
-
-  let newOrder = await Orders.create({
-    email: req.user.email,
-    productName,
-    amount,
-    userId: id,
+  res.status(200).json({
+    message: "Role updated successfully",
+    data: showData,
   });
-
-  console.log("order:\n", newOrder);
-
-  res.send("Order created");
 });
 
-app.get("/my-orders", auth, async (req, res) => {
-  let id = req.user.id;
-  let userOrder = await Orders.findOne({ userId: id });
+app.post("/orders", auth, async(req,res)=>{
+    let {id}=req.user;
 
-  if (!userOrder) {
-    return res.send("No order found for the user");
+    let {productName, amount}=req.body;
+    let newOrder=await Orders.create({
+        productName, amount, 
+        userId:id
+    })
+
+    console.log(newOrder);
+
+    res.status(200).json({
+        message:"Order created successfully"
+    })    
+})
+
+app.get("/my-orders", auth, async(req,res)=>{
+  let {id}=req.user;
+
+  let orderDetails=await Orders.find({userId:id});
+
+  if(!orderDetails){
+    return res.status(200).json({
+      message:"No order details found",
+    })
   }
 
-  let order = {
-    productName: userOrder.productName,
-    amount: userOrder.amount,
-  };
+  console.log(orderDetails);
+  res.status(200).json({
+    message:"Order details found",
+    data:orderDetails
+  })
+})
 
-  res.send(order);
-});
+app.get("/allUsers", auth, roleCheck("admin"), async(req,res)=>{
+  let users=await Users.find();
 
-//debug
-app.get("/users/:id", auth, async (req, res) => {
-  let user = await User.findById(req.user.id);
-  if (!user) {
-    return res.send("User does not exist");
+  let showUsers=users.map((elem)=>cleanData(elem));
+  res.status(200).json({
+    data:showUsers
+  })
+})
+
+app.get("/users/:id", auth, roleCheck("admin"), async(req,res)=>{
+  let {id}=req.params;
+  let user=await Users.findById(id);
+
+  if(!user){
+    return res.status(200).json({
+      message:"User not found"
+    })
   }
-  res.json(user);
-});
-// we replace the req.user.id
 
-app.put("/role", auth, roleCheck("admin"),async (req, res) => {
-    let { role } = req.body;
-    if(role!=="user" && role!=="admin"){
-        return res.send("role is not valid");
-    }
+  let showData=cleanData(user);
 
-    let updatedUser=await Users.findByIdAndUpdate(req.user.id,
-        {
-            role:role,
-        },
-        {new:true}
-    )
-
-    req.user.role=role;
-
-    console.log(updatedUser);
-    res.send("user updated");
-
-});
-//first checking the roleCheck
-//checking the new role is valid or not
-//then updating the user in the database
-
-app.get('/my-orders', auth, async (req,res) => {
-    let orders = await Order.findOne({userId:req.user.id});
-    if(!orders){
-        return res.send("No order is found");
-    }
-    res.json(orders);
-});
-//finding the write user Id 
+  res.status(200).json({
+    message:"User details fetched",
+    data:showData
+  })
+})
 
 app.listen(3000, () => {
-  console.log("Server running....");
+  console.log("Server connected...");
 });

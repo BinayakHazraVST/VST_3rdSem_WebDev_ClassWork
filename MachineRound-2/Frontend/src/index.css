@@ -1,0 +1,23 @@
+*{
+    background-color: black;
+    color:white;
+    font-family: Arial, Helvetica, sans-serif;
+}
+
+.userDetails{
+    border:3px solid white;
+    border-radius: 10px;
+}
+
+button{
+    border:3px solid white;
+    border-radius: 10px;
+    padding:5px;
+    outline:none;
+    cursor: pointer;
+}
+
+.orderDetails{
+    border:3px solid white;
+    border-radius: 10px;
+}
