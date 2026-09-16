@@ -16,6 +16,7 @@ const ResetPassword = () => {
 
         setMessage(result.data.message);
         setNewPassword("");
+        navigate("/")
     }
     return (
         <div className="formBox" onSubmit={handleSubmit}>
