@@ -7,7 +7,6 @@ let Orders=require("./Models/OrderModel");
 let bcryptjs = require("bcryptjs");
 let jwt = require("jsonwebtoken");
 let cors = require("cors");
-
 connectDb();
 app.use(express.json());
 app.use(cors());
