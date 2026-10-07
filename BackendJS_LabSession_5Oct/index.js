@@ -12,8 +12,17 @@ app.get("/", (req, res) => {
   });
 });
 
-app.get("/hisaab", (req,res)=>{
-    res.render("hisaab");
+app.get("/hisaab/:fileName", (req,res)=>{
+    let fileName=req.params.fileName;
+    fs.readFile(`./files/${fileName}.txt`, "utf-8", function(err,fileContent){
+        if(err){
+            res.status(500).json({
+                message:"Internal server error"
+            })
+        }else{
+            res.render("hisaab", {fileName, fileContent})
+        }
+    })
 })
 
 app.get("/create", (req,res)=>{
@@ -30,9 +39,40 @@ app.post("/createhisaab", (req, res) => {
     res.redirect("/");
 });
 
-app.get("/edit", (req,res)=>{
-    let title=req.body.title;
-    let 
+app.get("/edit/:fileName" ,(req,res)=>{
+    let fileName=req.params.fileName;
+    fs.readFile(`./files/${fileName}.txt`, "utf-8", function(err, fileContent){
+        if(err){
+            res.status(500).json("Internal server error");
+        }else{
+            res.render("edit", {fileContent, fileName})
+        }
+    })
+})
+
+app.post("/update/:fileName", (req,res)=>{
+    let fileName=req.params.fileName;
+    let fileContent=req.body.content;
+    fs.writeFile(`./files/${fileName}.txt`, fileContent, function(err){
+        if(err){
+            res.status(500).json({
+            message:"Internal server error"
+            })
+        }
+        res.redirect("/");
+    })
+})
+
+app.get("/delete/:fileName", (req,res)=>{
+    let fileName=req.params.fileName;
+    fs.unlink(`./files/${fileName}.txt`, function(err){
+        if(err){
+                res.status(500).json({
+                message:"internal server error"
+            })
+        }
+        res.redirect("/");
+    })
 })
 
 app.listen(3000, (req, res) => {
